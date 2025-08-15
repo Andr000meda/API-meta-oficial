@@ -122,7 +122,32 @@ switch ($uri) {
     case '/documentos':
         switch ($method) {
             case 'GET':
-                echo json_encode(['message' => 'HOLA SI SIRVO :)']);
+            $id_alumno = $_GET['id_alumno'] ?? null;
+            $concepto  = $_GET['concepto'] ?? null;
+
+            if (!$id_alumno) {
+                http_response_code(400);
+                echo json_encode(['message' => 'Falta el parámetro "id_alumno"']);
+                break;
+            }
+
+            if ($concepto === null) {
+                $stmt = $conn->prepare("SELECT * FROM documentos WHERE id_alumno = ?");
+                $stmt->bind_param("i", $id_alumno);
+            } else {
+                $stmt = $conn->prepare("SELECT * FROM documentos WHERE id_alumno = ? AND concepto = ?");
+                $stmt->bind_param("is", $id_alumno, $concepto);
+            }
+
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // ! fetch_all si hay mas de uno, cuidado
+            echo json_encode($result);
+            break;
+            case 'POST':
+                $stmt = $conn->prepare("INSERT INTO documentos (id_alumno, concepto, url) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE url = VALUES(url)");
+                $stmt->bind_param("iss", $data['id_alumno'], $data['concepto'], $data['url']);
+                $stmt->execute();
+                echo json_encode(['message' => 'Documento subido correctamente']);
                 break;
             default:
                 http_response_code(405);
