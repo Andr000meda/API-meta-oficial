@@ -1,22 +1,22 @@
 create table if not exists alumnos (
     id int primary key auto_increment,
-    nombres varchar(255) not null,
-    apellidos varchar(255) not null,
-    matricula varchar(255) not null,
-    numero_telefono varchar(255) not null,
-    numero_seguro_social varchar(255) not null
+    nombres varchar(255),
+    apellidos varchar(255),
+    matricula varchar(255),
+    numero_telefono varchar(255),
+    numero_seguro_social varchar(255)
 );
 
 create table if not exists documentos (
     id int primary key auto_increment,
-    id_alumno int not null,
-    nombre varchar(255) not null,
-    url varchar(255) not null
+    id_alumno int,
+    nombre varchar(255),
+    url varchar(255)
 );
 
 create table if not exists sesiones (
     id int primary key auto_increment,
-    numero_telefono varchar(255) not null,
+    numero_telefono varchar(255),
     estado varchar(255)
 )
 
