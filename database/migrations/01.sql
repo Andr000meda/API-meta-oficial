@@ -1,27 +1,26 @@
-create table if not exists alumnos (
-    id int primary key auto_increment,
-    nombres varchar(255),
-    apellidos varchar(255),
-    matricula varchar(255),
-    numero_telefono varchar(255),
-    numero_seguro_social varchar(255)
+-- alumnos
+CREATE TABLE IF NOT EXISTS alumnos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombres VARCHAR(255),
+    apellidos VARCHAR(255),
+    matricula VARCHAR(255),
+    numero_telefono VARCHAR(255) NOT NULL UNIQUE,
+    numero_seguro_social VARCHAR(255),
+    clinica VARCHAR(255)
 );
 
-create table if not exists documentos (
-    id int primary key auto_increment,
-    id_alumno int,
-    nombre varchar(255),
-    url varchar(255)
+-- documentos
+CREATE TABLE IF NOT EXISTS documentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_alumno INT,
+    nombre VARCHAR(255),
+    url VARCHAR(255),
+    CONSTRAINT fk_documentos_alumnos FOREIGN KEY (id_alumno) REFERENCES alumnos(id)
 );
 
-create table if not exists sesiones (
-    id int primary key auto_increment,
-    numero_telefono varchar(255),
-    estado varchar(255)
-)
-
-alter table documentos add constraint fk_documentos_alumnos foreign key (id_alumno) references alumnos(id);
-
-alter table sesiones add constraint unique_numero_telefono unique (numero_telefono);
-
-alter table alumnos add constraint unique_numero_telefono unique (numero_telefono);
+-- sesiones
+CREATE TABLE IF NOT EXISTS sesiones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    numero_telefono VARCHAR(255) UNIQUE,
+    estado VARCHAR(255)
+);

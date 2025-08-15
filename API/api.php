@@ -62,50 +62,55 @@ switch ($uri) {
                 echo json_encode($result);
                 break;
             case 'POST':
-                // verificar si el alumno existe
-                $stmt = $conn->prepare("SELECT * FROM alumnos WHERE numero_telefono = ?");
+                if (!isset($data['numero_telefono'])) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'El campo numero_telefono es requerido']);
+                    break;
+                }
+                $stmt = $conn->prepare("INSERT INTO alumnos (numero_telefono) VALUES (?)");
                 $stmt->bind_param("s", $data['numero_telefono']);
                 $stmt->execute();
-                $result = $stmt->get_result()->fetch_assoc();
-                if ($result) {
-                    $fields = ['nombre', 'apellido', 'correo_electronico', 'fecha_nacimiento', 'numero_seguro_social'];
-                    $updates = [];
-                    $params = [];
-                    $types = '';
+                echo json_encode(['message' => 'Alumno registrado correctamente']);
+                break;
+            case 'PATCH':
+                // actualizar alumno
+                if (!isset($data['numero_telefono'])) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'El campo numero_telefono es requerido']);
+                    break;
+                }
 
-                    foreach ($fields as $field) {
-                        if (isset($data[$field])) {
-                            $updates[] = "$field = ?";
-                            $params[] = $data[$field];
-                            $types .= 's';
-                        }
+                $fields = ['nombres', 'apellidos', 'matricula', 'numero_seguro_social', 'clinica'];
+                $updates = [];
+                $params = [];
+                $types = '';
+
+                foreach ($fields as $field) {
+                    if (isset($data[$field])) {
+                        $updates[] = "$field = ?";
+                        $params[] = $data[$field];
+                        $types .= 's';
                     }
+                }
 
-                    if (empty($updates) || !isset($data['numero_telefono'])) {
-                        http_response_code(400);
-                        echo json_encode(['message' => 'Datos insuficientes para actualizar']);
-                        exit;
-                    }
+                if (empty($updates)) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Al menos un campo debe ser proporcionado para actualizar']);
+                    break;
+                }
 
-                    $sql = "UPDATE alumnos SET " . implode(', ', $updates) . " WHERE numero_telefono = ?";
-                    $params[] = $data['numero_telefono'];
-                    $types .= 's';
+                $sql = "UPDATE alumnos SET " . implode(', ', $updates) . " WHERE numero_telefono = ?";
+                $params[] = $data['numero_telefono'];
+                $types .= 's';
 
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param($types, ...$params);
-                    $stmt->execute();
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$params);
+                $stmt->execute();
 
-                    if ($stmt->affected_rows > 0) {
-                        echo json_encode(['message' => 'Alumno actualizado correctamente']);
-                    } else {
-                        echo json_encode(['message' => 'No se actualizó ningún registro (verifique el número de teléfono)']);
-                    }
+                if ($stmt->affected_rows > 0) {
+                    echo json_encode(['message' => 'Alumno actualizado correctamente']);
                 } else {
-                    // crear Alumno solo con el nombre porque es el primer dato que se envia en el flujo de whatsapp
-                    $stmt = $conn->prepare("INSERT INTO alumnos (nombres, numero_telefono) VALUES (?, ?)");
-                    $stmt->bind_param("ss", $data['nombres'], $data['numero_telefono']);
-                    $stmt->execute();
-                    echo json_encode(['message' => 'Alumno creado correctamente']);
+                    echo json_encode(['message' => 'No se encontró el alumno con ese número de teléfono']);
                 }
                 break;
             default:
