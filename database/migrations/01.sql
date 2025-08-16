@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS alumnos (
 
 -- documentos
 CREATE TABLE IF NOT EXISTS documentos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
     id_alumno INT,
-    nombre VARCHAR(255),
+    concepto VARCHAR(255),
     url VARCHAR(255),
+    PRIMARY KEY (id_alumno, concepto),
     CONSTRAINT fk_documentos_alumnos FOREIGN KEY (id_alumno) REFERENCES alumnos(id)
 );
 
