@@ -1,6 +1,7 @@
 -- crear base de datos
 DROP DATABASE IF EXISTS chatbot_oficial;
 CREATE DATABASE chatbot_oficial;
+Use chatbot_oficial;
 
 -- alumnos
 CREATE TABLE IF NOT EXISTS alumnos (
